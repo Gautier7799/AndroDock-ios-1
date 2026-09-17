@@ -26,6 +26,12 @@ export interface DockSettings {
   // Widget specific settings
   widgetColumns: number; // 4, 5, or 6
   widgetTheme: 'frosted_glass' | 'material_you' | 'dark_oled';
+  // iOS Launcher style settings matching Screenshot_20260917-122736.png
+  dockStyle: 'ios_launcher_circles' | 'ios_glass_shelf_only';
+  showNotificationBadge: boolean;
+  dockWidth: number;
+  dockHeight: number;
+  dockCornerRadius: number;
 }
 
 export interface AndroidCodeFile {

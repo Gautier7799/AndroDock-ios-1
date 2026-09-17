@@ -31,18 +31,23 @@ export default function App() {
 
   const [settings, setSettings] = useState<DockSettings>({
     integrationMode: 'system_widget',
-    blurRadius: 24,
+    blurRadius: 28,
     springStiffness: 300,
     springDamping: 0.6,
     enable120Hz: true,
-    dockOpacity: 0.35,
+    dockOpacity: 0.52,
     dockScale: 1.0,
     snapToEdge: true,
     hapticFeedback: true,
     showLabels: true,
     autoHide: false,
-    widgetColumns: 5,
-    widgetTheme: 'frosted_glass'
+    widgetColumns: 4,
+    widgetTheme: 'frosted_glass',
+    dockStyle: 'ios_launcher_circles',
+    showNotificationBadge: true,
+    dockWidth: 350,
+    dockHeight: 88,
+    dockCornerRadius: 32
   });
 
   const handleUpdateSettings = (newSettings: Partial<DockSettings>) => {

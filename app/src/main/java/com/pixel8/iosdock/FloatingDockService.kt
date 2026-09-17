@@ -47,10 +47,12 @@ class FloatingDockService : Service() {
     private lateinit var prefs: DockPreferences
 
     private val isLockedState = mutableStateOf(true)
-    private val widthDpState = mutableIntStateOf(340)
-    private val heightDpState = mutableIntStateOf(86)
-    private val cornerRadiusState = mutableIntStateOf(28)
-    private val glassOpacityState = mutableFloatStateOf(0.42f)
+    private val showIconsState = mutableStateOf(true)
+    private val showBadgeState = mutableStateOf(true)
+    private val widthDpState = mutableIntStateOf(356)
+    private val heightDpState = mutableIntStateOf(92)
+    private val cornerRadiusState = mutableIntStateOf(34)
+    private val glassOpacityState = mutableFloatStateOf(0.52f)
 
     // متحكم دورة الحياة للـ ComposeView داخل الـ Service لمنع Exception
     private val serviceLifecycleOwner = CustomServiceLifecycleOwner()
@@ -141,7 +143,8 @@ class FloatingDockService : Service() {
                 WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or
                 WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED
 
-        if (isLockedState.value) {
+        // إذا كان المستخدم قد اختار فقط الرف الزجاجي الشفاف (بدون أيقونات داخلية) وهو مقفول، نمرر اللمسات للتطبيقات بالأسفل
+        if (!showIconsState.value && isLockedState.value) {
             baseFlags = baseFlags or WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
         }
 
@@ -168,6 +171,8 @@ class FloatingDockService : Service() {
                     heightDp = heightDpState.intValue,
                     cornerRadius = cornerRadiusState.intValue,
                     glassOpacity = glassOpacityState.floatValue,
+                    showIcons = showIconsState.value,
+                    showBadge = showBadgeState.value,
                     isLocked = isLockedState.value,
                     onDragDelta = { dx, dy ->
                         windowLayoutParams.x += dx.toInt()
@@ -189,6 +194,8 @@ class FloatingDockService : Service() {
 
     private fun readStateFromPrefs() {
         isLockedState.value = prefs.isLocked
+        showIconsState.value = prefs.showIcons
+        showBadgeState.value = prefs.showBadge
         widthDpState.intValue = prefs.widthDp
         heightDpState.intValue = prefs.heightDp
         cornerRadiusState.intValue = prefs.cornerRadius
@@ -202,7 +209,7 @@ class FloatingDockService : Service() {
                     WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or
                     WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED
 
-            if (isLockedState.value) {
+            if (!showIconsState.value && isLockedState.value) {
                 flags = flags or WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
             }
 

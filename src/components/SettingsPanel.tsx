@@ -74,6 +74,20 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1">
           <button
+            onClick={() => onUpdateSettings({ integrationMode: 'floating_overlay' })}
+            className={`p-2.5 rounded-xl border text-right transition-all flex flex-col gap-1 ${
+              settings.integrationMode === 'floating_overlay'
+                ? 'bg-purple-950/50 border-purple-500/80 text-purple-200 shadow-md ring-1 ring-purple-500/40'
+                : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            <div className="text-xs font-bold text-white flex items-center gap-1">
+              <span>شريط iOS عائم (صورة الشريك)</span>
+            </div>
+            <div className="text-[10px] text-slate-400">يطفو في الأسفل بنمط iOS Launcher مع زجاج وأيقونات دائرية</div>
+          </button>
+
+          <button
             onClick={() => onUpdateSettings({ integrationMode: 'system_widget' })}
             className={`p-2.5 rounded-xl border text-right transition-all flex flex-col gap-1 ${
               settings.integrationMode === 'system_widget'
@@ -100,21 +114,80 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
             </div>
             <div className="text-[10px] text-slate-400">ميزة النظام المدمجة في Pixel 8 بدون برامج</div>
           </button>
+        </div>
+      </div>
 
+      {/* بطاقة المطابقة التامة لصورة iOS Launcher */}
+      <div className="p-4 bg-gradient-to-r from-blue-950/60 to-purple-950/60 border border-blue-500/40 rounded-2xl space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
+            <h4 className="text-xs font-bold text-white">مطابقة لقطة شاشة الـ iOS Launcher المرفوعة</h4>
+          </div>
           <button
-            onClick={() => onUpdateSettings({ integrationMode: 'floating_overlay' })}
-            className={`p-2.5 rounded-xl border text-right transition-all flex flex-col gap-1 ${
-              settings.integrationMode === 'floating_overlay'
-                ? 'bg-purple-950/50 border-purple-500/80 text-purple-200 shadow-md ring-1 ring-purple-500/40'
-                : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-slate-200'
-            }`}
+            onClick={() =>
+              onUpdateSettings({
+                integrationMode: 'floating_overlay',
+                dockStyle: 'ios_launcher_circles',
+                showNotificationBadge: true,
+                dockWidth: 350,
+                dockHeight: 88,
+                dockCornerRadius: 32,
+                dockOpacity: 0.52,
+                blurRadius: 28
+              })
+            }
+            className="text-[11px] bg-blue-600 hover:bg-blue-500 text-white font-bold px-3 py-1 rounded-xl shadow-md transition-all active:scale-95"
           >
-            <div className="text-xs font-bold text-white flex items-center gap-1">
-              <span>النافذة العائمة</span>
-            </div>
-            <div className="text-[10px] text-slate-400">يطفو فوق كافة البرامج بواسطة WindowManager</div>
+            تطبيق مظهر الصورة 100%
           </button>
         </div>
+
+        {/* نمط العرض: أيقونات مثل الصورة أم رف زجاجي فقط */}
+        <div className="grid grid-cols-2 gap-2 pt-1">
+          <button
+            onClick={() => onUpdateSettings({ dockStyle: 'ios_launcher_circles' })}
+            className={`p-2.5 rounded-xl border text-right transition-all flex flex-col gap-1 ${
+              settings.dockStyle !== 'ios_glass_shelf_only'
+                ? 'bg-blue-900/40 border-blue-400 text-white font-bold ring-1 ring-blue-400/50'
+                : 'bg-slate-900 border-slate-800 text-slate-400'
+            }`}
+          >
+            <span className="text-xs">الأيقونات الدائرية + الشارة</span>
+            <span className="text-[10px] text-slate-400 font-normal">مطابق للصورة: هاتف، رسائل، Chrome، كاميرا</span>
+          </button>
+
+          <button
+            onClick={() => onUpdateSettings({ dockStyle: 'ios_glass_shelf_only' })}
+            className={`p-2.5 rounded-xl border text-right transition-all flex flex-col gap-1 ${
+              settings.dockStyle === 'ios_glass_shelf_only'
+                ? 'bg-purple-900/40 border-purple-400 text-white font-bold ring-1 ring-purple-400/50'
+                : 'bg-slate-900 border-slate-800 text-slate-400'
+            }`}
+          >
+            <span className="text-xs">رف زجاجي شفاف فقط</span>
+            <span className="text-[10px] text-slate-400 font-normal">يلتف خلف أيقوناتك الحالية ويمرر اللمس 100%</span>
+          </button>
+        </div>
+
+        {/* زر تفعيل شارة الإشعارات */}
+        {settings.dockStyle !== 'ios_glass_shelf_only' && (
+          <div className="flex items-center justify-between pt-1">
+            <span className="text-[11px] text-slate-300">شارة الإشعار الحمراء (رقم 1 على الرسائل):</span>
+            <button
+              onClick={() => onUpdateSettings({ showNotificationBadge: !settings.showNotificationBadge })}
+              className={`w-10 h-5 rounded-full transition-colors relative p-0.5 ${
+                settings.showNotificationBadge ? 'bg-red-500' : 'bg-slate-700'
+              }`}
+            >
+              <div
+                className={`w-4 h-4 bg-white rounded-full shadow transition-transform ${
+                  settings.showNotificationBadge ? 'translate-x-5' : 'translate-x-0'
+                }`}
+              />
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Permissions and Service State Switches (Relevant for Floating Overlay) */}
@@ -285,7 +358,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
         <div className="flex items-center justify-between text-xs">
           <span className="flex items-center gap-1.5 text-slate-300">
             <Eye size={14} className="text-purple-400" />
-            <span>شفافية كبسولة الـ Dock</span>
+            <span>شفافية كبسولة الـ Dock (Glass Opacity)</span>
           </span>
           <span className="font-mono text-cyan-400 font-bold">
             {Math.round(settings.dockOpacity * 100)}%
@@ -300,6 +373,39 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
           onChange={(e) => onUpdateSettings({ dockOpacity: Number(e.target.value) })}
           className="w-full accent-cyan-500 bg-slate-800 rounded-lg h-2 cursor-pointer"
         />
+      </div>
+
+      {/* Dock Width & Height */}
+      <div className="grid grid-cols-2 gap-3">
+        <div className="space-y-1.5">
+          <div className="flex items-center justify-between text-xs">
+            <span className="text-slate-300 text-[11px]">عرض الـ Dock:</span>
+            <span className="font-mono text-cyan-400 font-bold text-[11px]">{settings.dockWidth || 350}px</span>
+          </div>
+          <input
+            type="range"
+            min="300"
+            max="370"
+            value={settings.dockWidth || 350}
+            onChange={(e) => onUpdateSettings({ dockWidth: Number(e.target.value) })}
+            className="w-full accent-cyan-500 bg-slate-800 rounded-lg h-1.5 cursor-pointer"
+          />
+        </div>
+
+        <div className="space-y-1.5">
+          <div className="flex items-center justify-between text-xs">
+            <span className="text-slate-300 text-[11px]">انحناء الزوايا:</span>
+            <span className="font-mono text-cyan-400 font-bold text-[11px]">{settings.dockCornerRadius || 32}px</span>
+          </div>
+          <input
+            type="range"
+            min="20"
+            max="44"
+            value={settings.dockCornerRadius || 32}
+            onChange={(e) => onUpdateSettings({ dockCornerRadius: Number(e.target.value) })}
+            className="w-full accent-cyan-500 bg-slate-800 rounded-lg h-1.5 cursor-pointer"
+          />
+        </div>
       </div>
 
       {/* 120Hz Smooth Display Switch */}

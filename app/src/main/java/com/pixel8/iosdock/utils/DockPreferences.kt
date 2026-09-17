@@ -17,8 +17,18 @@ class DockPreferences(context: Context) {
         const val KEY_CORNER_RADIUS = "key_corner_radius"
         const val KEY_GLASS_OPACITY = "key_glass_opacity"
         const val KEY_IS_LOCKED = "key_is_locked"
+        const val KEY_SHOW_ICONS = "key_show_icons"
+        const val KEY_SHOW_BADGE = "key_show_badge"
         const val ACTION_PREFS_UPDATED = "com.pixel8.iosdock.PREFS_UPDATED"
     }
+
+    var showIcons: Boolean
+        get() = prefs.getBoolean(KEY_SHOW_ICONS, true) // تفعيل الأيقونات الأربعة مثل صورة iOS Launcher
+        set(value) = prefs.edit().putBoolean(KEY_SHOW_ICONS, value).apply()
+
+    var showBadge: Boolean
+        get() = prefs.getBoolean(KEY_SHOW_BADGE, true) // إظهار شارة الإشعارات الحمراء (مثل رقم 1 على الرسائل)
+        set(value) = prefs.edit().putBoolean(KEY_SHOW_BADGE, value).apply()
 
     var yOffset: Int
         get() = prefs.getInt(KEY_Y_OFFSET, 180) // القيمة الافتراضية المثالية لـ Pixel 8 فوق شريط البحث
