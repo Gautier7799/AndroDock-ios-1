@@ -30,12 +30,12 @@ export default function App() {
   const [isDownloadingZip, setIsDownloadingZip] = useState(false);
 
   const [settings, setSettings] = useState<DockSettings>({
-    integrationMode: 'system_widget',
+    integrationMode: 'floating_overlay',
     blurRadius: 28,
-    springStiffness: 300,
-    springDamping: 0.6,
+    springStiffness: 320,
+    springDamping: 0.7,
     enable120Hz: true,
-    dockOpacity: 0.52,
+    dockOpacity: 0.45,
     dockScale: 1.0,
     snapToEdge: true,
     hapticFeedback: true,
@@ -43,11 +43,12 @@ export default function App() {
     autoHide: false,
     widgetColumns: 4,
     widgetTheme: 'frosted_glass',
-    dockStyle: 'ios_launcher_circles',
-    showNotificationBadge: true,
-    dockWidth: 350,
-    dockHeight: 88,
-    dockCornerRadius: 32
+    dockStyle: 'ios_glass_shelf_only',
+    showNotificationBadge: false,
+    dockWidth: 356,
+    dockHeight: 78,
+    dockCornerRadius: 30,
+    hideInApps: true
   });
 
   const handleUpdateSettings = (newSettings: Partial<DockSettings>) => {

@@ -58,7 +58,7 @@ export const ANDROID_PROJECT_FILES: AndroidCodeFile[] = [
                 android:resource="@xml/ios_dock_widget_info" />
         </receiver>
 
-        <!-- خدمة الـ Dock الأمامية (اختيارية لوضع الطفو العائم فوق التطبيقات) -->
+        <!-- خدمة الـ Dock الأمامية (وضع الرف الزجاجي العائم الشفاف) -->
         <service
             android:name=".FloatingDockService"
             android:enabled="true"
@@ -67,6 +67,20 @@ export const ANDROID_PROJECT_FILES: AndroidCodeFile[] = [
             <property
                 android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
                 android:value="Floating iOS Dock system navigation overlay for quick multi-tasking" />
+        </service>
+
+        <!-- 🌟 خدمة الربط بالنظام (Home Screen Detection) 🌟 -->
+        <!-- تسحب وتخفي الـ Dock تلقائياً عند فتح أي تطبيق، وتعيده عند الرجوع للواجهة الرئيسية -->
+        <service
+            android:name=".service.DockAccessibilityService"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/dock_accessibility_service_config" />
         </service>
 
     </application>
@@ -384,14 +398,53 @@ class FloatingDockService : Service() {
         const val CHANNEL_ID = "pixel8_dock_foreground_channel"
         const val NOTIFICATION_ID = 8008
         const val ACTION_STOP_SERVICE = "ACTION_STOP_SERVICE"
+        const val ACTION_SHOW_DOCK = "ACTION_SHOW_DOCK"
+        const val ACTION_HIDE_DOCK = "ACTION_HIDE_DOCK"
+
+        var instance: FloatingDockService? = null
+
+        /**
+         * سحب وإخفاء الـ Dock تلقائياً عند فتح المستخدم لأي تطبيق
+         */
+        fun hideDock() {
+            instance?.animateHide()
+        }
+
+        /**
+         * إرجاع وإظهار الـ Dock تلقائياً عند الرجوع للواجهة الرئيسية (Home Launcher)
+         */
+        fun showDock() {
+            instance?.animateShow()
+        }
     }
 
     override fun onCreate() {
         super.onCreate()
+        instance = this
         serviceLifecycleOwner.onCreate()
         windowManager = getSystemService(Context.WINDOW_SERVICE) as WindowManager
         startDockForegroundService()
         initDockOverlay()
+    }
+
+    fun animateHide() {
+        floatingView?.post {
+            floatingView?.animate()
+                ?.translationY(280f)
+                ?.alpha(0f)
+                ?.setDuration(240)
+                ?.start()
+        }
+    }
+
+    fun animateShow() {
+        floatingView?.post {
+            floatingView?.animate()
+                ?.translationY(0f)
+                ?.alpha(1f)
+                ?.setDuration(280)
+                ?.start()
+        }
     }
 
     private fun startDockForegroundService() {
@@ -623,27 +676,32 @@ fun FloatingDockView(
         // الرف الزجاجي الفاخر (iOS Frosted Glass Shelf)
         Box(
             modifier = Modifier
+                .then(
+                    if (!showIcons) Modifier.size(width = 356.dp, height = 78.dp)
+                    else Modifier.wrapContentSize()
+                )
                 .shadow(
                     elevation = 16.dp,
-                    shape = RoundedCornerShape(32.dp),
+                    shape = RoundedCornerShape(30.dp),
                     spotColor = Color(0x40000000),
                     ambientColor = Color(0x20000000)
                 )
-                .clip(RoundedCornerShape(32.dp))
+                .clip(RoundedCornerShape(30.dp))
                 .background(
                     Brush.verticalGradient(
                         colors = listOf(
-                            Color(0x99FFFFFF), // زجاج أبيض نصف شفاف نقي
-                            Color(0x80F2F2F7)
+                            Color(0x73FFFFFF), // زجاج أبيض ناصع نصف شفاف 45%
+                            Color(0x59F2F2F7)
                         )
                     )
                 )
                 .border(
                     width = 1.2.dp,
-                    color = Color.White.copy(alpha = 0.75f),
-                    shape = RoundedCornerShape(32.dp)
+                    color = Color.White.copy(alpha = 0.8f),
+                    shape = RoundedCornerShape(30.dp)
                 )
-                .padding(horizontal = 18.dp, vertical = 12.dp)
+                .padding(horizontal = 18.dp, vertical = 12.dp),
+            contentAlignment = Alignment.Center
         ) {
             if (showIcons) {
                 Row(
@@ -1260,5 +1318,75 @@ jobs:
         run: |
           echo "### 🚀 نتيجة بناء AndroDock APK" >> $GITHUB_STEP_SUMMARY
           echo "تم تجميع وبناء التطبيق بنجاح عبر GitHub Actions! يمكنك الآن تنزيل ملف **AndroDock-Debug-APK** من تبويب Artifacts في الأعلى وتثبيته مباشرة على هاتف Pixel 8." >> $GITHUB_STEP_SUMMARY`
+  },
+  {
+    path: 'app/src/main/java/com/pixel8/iosdock/service/DockAccessibilityService.kt',
+    title: 'DockAccessibilityService.kt',
+    titleAr: 'خدمة الربط بالنظام (الانسحاب التلقائي)',
+    language: 'kotlin',
+    descriptionAr: 'خدمة خفيفة جداً تكتشف الانتقال بين التطبيقات والشاشة الرئيسية، فتسحب الـ Dock للأسفل عند فتح أي تطبيق، وتعيده تلقائياً عند الرجوع للواجهة الرئيسية.',
+    code: `package com.pixel8.iosdock.service
+
+import android.accessibilityservice.AccessibilityService
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.view.accessibility.AccessibilityEvent
+import com.pixel8.iosdock.FloatingDockService
+
+/**
+ * خدمة الربط التلقائي بالنظام (Auto-Retract & Show)
+ * تستمع فقط لحدث TYPE_WINDOW_STATE_CHANGED
+ * تستهلك 0% بطارية لأنها لا تعمل إلا عند تغيير التطبيق في الشاشة
+ */
+class DockAccessibilityService : AccessibilityService() {
+
+    override fun onAccessibilityEvent(event: AccessibilityEvent?) {
+        if (event?.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
+            val packageName = event.packageName?.toString() ?: return
+
+            // تجاهل أحداث النظام الداخلية أو لوحة المفاتيح
+            if (packageName == "com.android.systemui" || packageName.contains("inputmethod")) {
+                return
+            }
+
+            // فحص ما إذا كانت الحزمة الحالية هي اللانشر الافتراضي للشاشة الرئيسية
+            val homeIntent = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME)
+            val resolveInfo = packageManager.resolveActivity(homeIntent, PackageManager.MATCH_DEFAULT_ONLY)
+            val defaultLauncher = resolveInfo?.activityInfo?.packageName ?: "com.google.android.apps.nexuslauncher"
+
+            val isHomeScreen = packageName == defaultLauncher ||
+                               packageName.contains("launcher", ignoreCase = true) ||
+                               packageName == "com.google.android.apps.nexuslauncher"
+
+            if (isHomeScreen) {
+                // المستخدم رجع للشاشة الرئيسية -> إظهار وسحب الـ Dock للأعلى فوراً
+                FloatingDockService.showDock()
+            } else {
+                // المستخدم دخل لتطبيق (واتساب، كاميرا، إعدادات، إلخ) -> سحب وإخفاء الـ Dock
+                FloatingDockService.hideDock()
+            }
+        }
+    }
+
+    override fun onInterrupt() {
+        // لا يوجد عمل عند المقاطعة
+    }
+}
+`
+  },
+  {
+    path: 'app/src/main/res/xml/dock_accessibility_service_config.xml',
+    title: 'dock_accessibility_service_config.xml',
+    titleAr: 'إعدادات خدمة رصد الشاشة الرئيسية',
+    language: 'xml',
+    descriptionAr: 'ملف تكوين خدمة رصد النوافذ والاستماع لتغير التطبيقات بدون بطء أو استهلاك للطاقة.',
+    code: `<?xml version="1.0" encoding="utf-8"?>
+<accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
+    android:accessibilityEventTypes="typeWindowStateChanged"
+    android:accessibilityFeedbackType="feedbackGeneric"
+    android:accessibilityFlags="flagDefault"
+    android:canRetrieveWindowContent="false"
+    android:notificationTimeout="100" />
+`
   }
 ];

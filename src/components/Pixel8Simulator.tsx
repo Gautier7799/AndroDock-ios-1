@@ -258,35 +258,55 @@ export const Pixel8Simulator: React.FC<Pixel8SimulatorProps> = ({
                     />
                   )}
 
-                  {/* NATIVE PIXEL 8 DOCK ROW (Phone, Messages, Web, Camera) */}
+                  {/* NATIVE PIXEL 8 DOCK ROW (Phone, Messages, Chrome Beta, Camera - Exact Match to User Screenshot) */}
                   <div className="w-full relative py-2 mb-1 flex items-center justify-around z-20">
                     <button
-                      onClick={() => handleAppLaunch({ id: 'phone', name: 'Phone', nameAr: 'الهاتف', packageName: 'com.google.android.dialer', iconName: 'Phone', color: 'emerald', gradient: 'from-emerald-500 to-green-600' })}
-                      className="w-12 h-12 rounded-full bg-emerald-500 hover:bg-emerald-400 text-white flex items-center justify-center shadow-lg border border-white/20 active:scale-95 transition-all"
+                      onClick={() => handleAppLaunch({ id: 'phone', name: 'Phone', nameAr: 'الهاتف', packageName: 'com.google.android.dialer', iconName: 'Phone', color: 'blue', gradient: 'from-blue-500 to-indigo-600' })}
+                      className="w-13 h-13 rounded-full bg-white text-blue-500 flex items-center justify-center shadow-md border border-black/5 active:scale-90 transition-transform"
                       title="الهاتف الأصلي"
                     >
-                      <Phone size={22} />
+                      <Phone size={24} className="fill-blue-500/20" />
                     </button>
+
                     <button
                       onClick={() => handleAppLaunch({ id: 'messages', name: 'Messages', nameAr: 'الرسائل', packageName: 'com.google.android.apps.messaging', iconName: 'MessageSquare', color: 'blue', gradient: 'from-blue-500 to-indigo-600' })}
-                      className="w-12 h-12 rounded-full bg-blue-500 hover:bg-blue-400 text-white flex items-center justify-center shadow-lg border border-white/20 active:scale-95 transition-all"
+                      className="w-13 h-13 rounded-full bg-white text-blue-500 flex items-center justify-center shadow-md border border-black/5 active:scale-90 transition-transform relative"
                       title="الرسائل الأصلية"
                     >
-                      <MessageSquare size={22} />
+                      <MessageSquare size={24} className="fill-blue-500/20" />
+                      <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-[#FF3B30] text-white font-bold text-[11px] flex items-center justify-center border-2 border-white shadow-sm">
+                        1
+                      </span>
                     </button>
+
                     <button
-                      onClick={() => handleAppLaunch({ id: 'chrome', name: 'Chrome', nameAr: 'المتصفح', packageName: 'com.android.chrome', iconName: 'Compass', color: 'amber', gradient: 'from-amber-500 to-orange-600' })}
-                      className="w-12 h-12 rounded-full bg-slate-900 border-2 border-amber-400 text-amber-300 flex items-center justify-center shadow-lg active:scale-95 transition-all font-black text-lg"
-                      title="المتصفح الأصلي"
+                      onClick={() => handleAppLaunch({ id: 'chrome', name: 'Chrome Beta', nameAr: 'Chrome Beta', packageName: 'com.chrome.beta', iconName: 'Compass', color: 'amber', gradient: 'from-amber-500 to-orange-600' })}
+                      className="w-13 h-13 rounded-full bg-white flex items-center justify-center shadow-md border border-black/5 active:scale-90 transition-transform relative overflow-hidden"
+                      title="Chrome Beta الأصلي"
                     >
-                      W
+                      <div className="w-8 h-8 rounded-full relative flex items-center justify-center border border-black/5 overflow-hidden shadow-inner">
+                        <div
+                          className="absolute inset-0 rounded-full"
+                          style={{
+                            background: 'conic-gradient(from 0deg, #EA4335 0deg 90deg, #FBBC05 90deg 210deg, #34A853 210deg 300deg, #4285F4 300deg 360deg)'
+                          }}
+                        />
+                        <div className="w-3.5 h-3.5 rounded-full bg-[#1A73E8] border-2 border-white z-10 shadow-sm" />
+                        <div className="absolute bottom-0 inset-x-0 bg-slate-900/90 text-white text-[6.5px] font-black text-center py-[0.5px] tracking-tight z-20">
+                          Beta
+                        </div>
+                      </div>
                     </button>
+
                     <button
                       onClick={() => handleAppLaunch({ id: 'camera', name: 'Camera', nameAr: 'الكاميرا', packageName: 'com.google.android.GoogleCamera', iconName: 'Camera', color: 'rose', gradient: 'from-rose-500 to-red-600' })}
-                      className="w-12 h-12 rounded-full bg-rose-500 hover:bg-rose-400 text-white flex items-center justify-center shadow-lg border border-white/20 active:scale-95 transition-all"
+                      className="w-13 h-13 rounded-full bg-white flex items-center justify-center shadow-md border border-black/5 active:scale-90 transition-transform relative text-slate-700"
                       title="الكاميرا الأصلية"
                     >
-                      <Camera size={22} />
+                      <div className="relative flex items-center justify-center">
+                        <Camera size={24} />
+                        <div className="absolute w-2 h-2 rounded-full bg-blue-500/70" />
+                      </div>
                     </button>
                   </div>
 
@@ -526,6 +546,7 @@ export const Pixel8Simulator: React.FC<Pixel8SimulatorProps> = ({
                 onCloseDock={onToggleService}
                 isServiceRunning={isServiceRunning}
                 hasPermission={hasPermission}
+                isHomeScreen={activeApp === 'home'}
               />
             )}
 

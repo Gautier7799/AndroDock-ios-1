@@ -74,7 +74,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1">
           <button
-            onClick={() => onUpdateSettings({ integrationMode: 'floating_overlay' })}
+            onClick={() => onUpdateSettings({ integrationMode: 'floating_overlay', dockStyle: 'ios_glass_shelf_only' })}
             className={`p-2.5 rounded-xl border text-right transition-all flex flex-col gap-1 ${
               settings.integrationMode === 'floating_overlay'
                 ? 'bg-purple-950/50 border-purple-500/80 text-purple-200 shadow-md ring-1 ring-purple-500/40'
@@ -82,9 +82,9 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
             }`}
           >
             <div className="text-xs font-bold text-white flex items-center gap-1">
-              <span>شريط iOS عائم (صورة الشريك)</span>
+              <span>شريط iOS الزجاجي الشفاف (بدون أيقونات)</span>
             </div>
-            <div className="text-[10px] text-slate-400">يطفو في الأسفل بنمط iOS Launcher مع زجاج وأيقونات دائرية</div>
+            <div className="text-[10px] text-slate-400">يلتف حول أيقوناتك الأصلية وينسحب تلقائياً عند فتح أي تطبيق</div>
           </button>
 
           <button
@@ -117,46 +117,59 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
         </div>
       </div>
 
-      {/* بطاقة المطابقة التامة لصورة iOS Launcher */}
+      {/* بطاقة الرف الزجاجي الشفاف iOS */}
       <div className="p-4 bg-gradient-to-r from-blue-950/60 to-purple-950/60 border border-blue-500/40 rounded-2xl space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
-            <h4 className="text-xs font-bold text-white">مطابقة لقطة شاشة الـ iOS Launcher المرفوعة</h4>
+            <h4 className="text-xs font-bold text-white">الرف الزجاجي الشفاف iOS (طلب الشريك)</h4>
           </div>
           <button
             onClick={() =>
               onUpdateSettings({
                 integrationMode: 'floating_overlay',
-                dockStyle: 'ios_launcher_circles',
-                showNotificationBadge: true,
-                dockWidth: 350,
-                dockHeight: 88,
-                dockCornerRadius: 32,
-                dockOpacity: 0.52,
+                dockStyle: 'ios_glass_shelf_only',
+                hideInApps: true,
+                dockWidth: 356,
+                dockHeight: 78,
+                dockCornerRadius: 30,
+                dockOpacity: 0.45,
                 blurRadius: 28
               })
             }
-            className="text-[11px] bg-blue-600 hover:bg-blue-500 text-white font-bold px-3 py-1 rounded-xl shadow-md transition-all active:scale-95"
+            className="text-[11px] bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-3 py-1 rounded-xl shadow-md transition-all active:scale-95"
           >
-            تطبيق مظهر الصورة 100%
+            تفعيل الرف الشفاف 100%
+          </button>
+        </div>
+
+        {/* ميزة الربط بالنظام (الانسحاب التلقائي عند فتح التطبيقات) */}
+        <div className="flex items-center justify-between p-2.5 bg-slate-950/70 rounded-xl border border-cyan-500/30">
+          <div>
+            <div className="text-xs font-bold text-white flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-cyan-400" />
+              <span>الربط بالنظام (الانسحاب التلقائي)</span>
+            </div>
+            <div className="text-[10px] text-slate-400 mt-0.5">
+              ينسحب الـ Dock تلقائياً ويختفي عند فتح أي تطبيق، ويعود فوراً عند الرجوع للواجهة الرئيسية!
+            </div>
+          </div>
+          <button
+            onClick={() => onUpdateSettings({ hideInApps: !settings.hideInApps })}
+            className={`w-11 h-6 rounded-full transition-colors relative p-0.5 ${
+              settings.hideInApps ? 'bg-cyan-500' : 'bg-slate-700'
+            }`}
+          >
+            <div
+              className={`w-5 h-5 bg-white rounded-full shadow transition-transform ${
+                settings.hideInApps ? 'translate-x-5' : 'translate-x-0'
+              }`}
+            />
           </button>
         </div>
 
         {/* نمط العرض: أيقونات مثل الصورة أم رف زجاجي فقط */}
         <div className="grid grid-cols-2 gap-2 pt-1">
-          <button
-            onClick={() => onUpdateSettings({ dockStyle: 'ios_launcher_circles' })}
-            className={`p-2.5 rounded-xl border text-right transition-all flex flex-col gap-1 ${
-              settings.dockStyle !== 'ios_glass_shelf_only'
-                ? 'bg-blue-900/40 border-blue-400 text-white font-bold ring-1 ring-blue-400/50'
-                : 'bg-slate-900 border-slate-800 text-slate-400'
-            }`}
-          >
-            <span className="text-xs">الأيقونات الدائرية + الشارة</span>
-            <span className="text-[10px] text-slate-400 font-normal">مطابق للصورة: هاتف، رسائل، Chrome، كاميرا</span>
-          </button>
-
           <button
             onClick={() => onUpdateSettings({ dockStyle: 'ios_glass_shelf_only' })}
             className={`p-2.5 rounded-xl border text-right transition-all flex flex-col gap-1 ${
@@ -165,8 +178,20 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                 : 'bg-slate-900 border-slate-800 text-slate-400'
             }`}
           >
-            <span className="text-xs">رف زجاجي شفاف فقط</span>
-            <span className="text-[10px] text-slate-400 font-normal">يلتف خلف أيقوناتك الحالية ويمرر اللمس 100%</span>
+            <span className="text-xs">رف زجاجي شفاف فقط (المطلوب)</span>
+            <span className="text-[10px] text-slate-400 font-normal">بدون أي أيقونات، يلتف حول تطبيقاتك الحالية ويمرر اللمس 100%</span>
+          </button>
+
+          <button
+            onClick={() => onUpdateSettings({ dockStyle: 'ios_launcher_circles' })}
+            className={`p-2.5 rounded-xl border text-right transition-all flex flex-col gap-1 ${
+              settings.dockStyle !== 'ios_glass_shelf_only'
+                ? 'bg-blue-900/40 border-blue-400 text-white font-bold ring-1 ring-blue-400/50'
+                : 'bg-slate-900 border-slate-800 text-slate-400'
+            }`}
+          >
+            <span className="text-xs">أيقونات دائرية بديلة</span>
+            <span className="text-[10px] text-slate-400 font-normal">عرض 4 أيقونات دائرية مخصصة داخل الـ Dock</span>
           </button>
         </div>
 

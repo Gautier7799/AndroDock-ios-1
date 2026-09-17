@@ -32,6 +32,7 @@ export interface DockSettings {
   dockWidth: number;
   dockHeight: number;
   dockCornerRadius: number;
+  hideInApps: boolean; // إخفاء وسحب الـ Dock تلقائياً عند فتح أي تطبيق، وإعادته عند الرجوع للشاشة الرئيسية
 }
 
 export interface AndroidCodeFile {

@@ -18,6 +18,7 @@ interface FloatingDockOverlayProps {
   onCloseDock: () => void;
   isServiceRunning: boolean;
   hasPermission: boolean;
+  isHomeScreen?: boolean;
 }
 
 export const FloatingDockOverlay: React.FC<FloatingDockOverlayProps> = ({
@@ -25,7 +26,8 @@ export const FloatingDockOverlay: React.FC<FloatingDockOverlayProps> = ({
   settings,
   onAppClick,
   isServiceRunning,
-  hasPermission
+  hasPermission,
+  isHomeScreen = true
 }) => {
   const [isLocked, setIsLocked] = useState(true);
   const [isDragging, setIsDragging] = useState(false);
@@ -34,10 +36,11 @@ export const FloatingDockOverlay: React.FC<FloatingDockOverlayProps> = ({
     return null;
   }
 
-  const showIcons = settings.dockStyle !== 'ios_glass_shelf_only';
-  const dockWidth = settings.dockWidth || 350;
-  const dockHeight = settings.dockHeight || 88;
-  const cornerRadius = settings.dockCornerRadius || 32;
+  const showIcons = settings.dockStyle === 'ios_launcher_circles';
+  const shouldRetract = (settings.hideInApps !== false) && !isHomeScreen;
+  const dockWidth = settings.dockWidth || 356;
+  const dockHeight = settings.dockHeight || 78;
+  const cornerRadius = settings.dockCornerRadius || 30;
 
   return (
     <motion.div
@@ -46,10 +49,17 @@ export const FloatingDockOverlay: React.FC<FloatingDockOverlayProps> = ({
       dragElastic={0.08}
       onDragStart={() => setIsDragging(true)}
       onDragEnd={() => setIsDragging(false)}
-      initial={{ y: 20, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      exit={{ y: 20, opacity: 0 }}
-      className={`absolute bottom-3 left-1/2 -translate-x-1/2 z-30 select-none flex flex-col items-center ${
+      initial={{ y: 0, opacity: 1 }}
+      animate={{
+        y: shouldRetract ? 140 : 0,
+        opacity: shouldRetract ? 0 : 1
+      }}
+      transition={{
+        type: 'spring',
+        damping: 26,
+        stiffness: 300
+      }}
+      className={`absolute bottom-[66px] left-1/2 -translate-x-1/2 z-20 select-none flex flex-col items-center ${
         !showIcons && isLocked ? 'pointer-events-none' : 'pointer-events-auto'
       }`}
       id="floating-dock-container"
