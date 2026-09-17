@@ -5,15 +5,19 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.graphics.PixelFormat
 import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import android.view.Gravity
-import android.view.View
 import android.view.WindowManager
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.platform.ComposeView
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.Lifecycle
@@ -28,17 +32,25 @@ import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import com.pixel8.iosdock.ui.FloatingDockView
+import com.pixel8.iosdock.utils.DockPreferences
 
 /**
- * خدمة الطفو الأمامية (Foreground Service)
+ * خدمة طبقة زجاج iOS الشفافة للـ Dock الأصلي (Foreground Service)
  * مصممة خصيصاً لهواتف Pixel 8 بنظام Android 14/15
- * تستخدم WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
+ * تتيح تمرير اللمسات للتطبيقات الأصلية بنسبة 100% عبر FLAG_NOT_TOUCHABLE
  */
 class FloatingDockService : Service() {
 
     private var windowManager: WindowManager? = null
     private var floatingView: ComposeView? = null
     private lateinit var windowLayoutParams: WindowManager.LayoutParams
+    private lateinit var prefs: DockPreferences
+
+    private val isLockedState = mutableStateOf(true)
+    private val widthDpState = mutableIntStateOf(340)
+    private val heightDpState = mutableIntStateOf(86)
+    private val cornerRadiusState = mutableIntStateOf(28)
+    private val glassOpacityState = mutableFloatStateOf(0.42f)
 
     // متحكم دورة الحياة للـ ComposeView داخل الـ Service لمنع Exception
     private val serviceLifecycleOwner = CustomServiceLifecycleOwner()
@@ -47,24 +59,49 @@ class FloatingDockService : Service() {
         const val CHANNEL_ID = "pixel8_dock_foreground_channel"
         const val NOTIFICATION_ID = 8008
         const val ACTION_STOP_SERVICE = "ACTION_STOP_SERVICE"
+        const val ACTION_UPDATE_PREFS = "com.pixel8.iosdock.ACTION_UPDATE_PREFS"
+        const val ACTION_TOGGLE_LOCK = "com.pixel8.iosdock.ACTION_TOGGLE_LOCK"
+    }
+
+    private val prefsReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            when (intent?.action) {
+                ACTION_UPDATE_PREFS -> refreshFromPrefs()
+                ACTION_TOGGLE_LOCK -> {
+                    prefs.isLocked = !prefs.isLocked
+                    refreshFromPrefs()
+                }
+            }
+        }
     }
 
     override fun onCreate() {
         super.onCreate()
+        prefs = DockPreferences(this)
         serviceLifecycleOwner.onCreate()
         windowManager = getSystemService(Context.WINDOW_SERVICE) as WindowManager
         startDockForegroundService()
         initDockOverlay()
+
+        val filter = IntentFilter().apply {
+            addAction(ACTION_UPDATE_PREFS)
+            addAction(ACTION_TOGGLE_LOCK)
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(prefsReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
+        } else {
+            registerReceiver(prefsReceiver, filter)
+        }
     }
 
     private fun startDockForegroundService() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
                 CHANNEL_ID,
-                "Pixel 8 Floating Dock",
-                NotificationManager.IMPORTANCE_MIN // هادئ جداً بدون إزعاج
+                "iOS Dock Shelf Overlay",
+                NotificationManager.IMPORTANCE_MIN
             ).apply {
-                description = "الـ Dock يطفو بنجاح فوق جميع التطبيقات"
+                description = "الطبقة الزجاجية الشفافة للـ Dock الأصلي"
                 setShowBadge(false)
             }
             val manager = getSystemService(NotificationManager::class.java)
@@ -78,8 +115,8 @@ class FloatingDockService : Service() {
         )
 
         val notification: Notification = NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("Pixel 8 iOS Dock نشط")
-            .setContentText("المس الأيقونات للتنقل السريع بين التطبيقات")
+            .setContentTitle("iOS Glass Dock Shelf نشط")
+            .setContentText("طبقة الزجاج الشفافة مدمجة مع الـ Dock الأصلي")
             .setSmallIcon(android.R.drawable.ic_dialog_info)
             .setContentIntent(pendingIntent)
             .setOngoing(true)
@@ -91,7 +128,6 @@ class FloatingDockService : Service() {
     }
 
     private fun initDockOverlay() {
-        // إعدادات النافذة العائمة فوق كافة الشاشات
         val layoutType = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
         } else {
@@ -99,22 +135,28 @@ class FloatingDockService : Service() {
             WindowManager.LayoutParams.TYPE_PHONE
         }
 
+        readStateFromPrefs()
+
+        var baseFlags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or
+                WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED
+
+        if (isLockedState.value) {
+            baseFlags = baseFlags or WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+        }
+
         windowLayoutParams = WindowManager.LayoutParams(
             WindowManager.LayoutParams.WRAP_CONTENT,
             WindowManager.LayoutParams.WRAP_CONTENT,
             layoutType,
-            // علامات تضمن عدم حجب لمسات الشاشة خلف الـ Dock وتسريع العتاد 120Hz
-            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                    WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or
-                    WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
+            baseFlags,
             PixelFormat.TRANSLUCENT
         ).apply {
             gravity = Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
-            x = 0
-            y = 80 // المسافة من أسفل الشاشة لشريط إيماءات Pixel 8
+            x = prefs.xOffset
+            y = prefs.yOffset
         }
 
-        // إنشاء الـ ComposeView وربط الـ LifecycleOwners لمنع كراش Compose
         floatingView = ComposeView(this).apply {
             setViewTreeLifecycleOwner(serviceLifecycleOwner)
             setViewTreeSavedStateRegistryOwner(serviceLifecycleOwner)
@@ -122,13 +164,21 @@ class FloatingDockService : Service() {
 
             setContent {
                 FloatingDockView(
+                    widthDp = widthDpState.intValue,
+                    heightDp = heightDpState.intValue,
+                    cornerRadius = cornerRadiusState.intValue,
+                    glassOpacity = glassOpacityState.floatValue,
+                    isLocked = isLockedState.value,
                     onDragDelta = { dx, dy ->
                         windowLayoutParams.x += dx.toInt()
-                        windowLayoutParams.y -= dy.toInt() // العكس لأن الإحداثيات من الأسفل
+                        windowLayoutParams.y -= dy.toInt()
+                        prefs.xOffset = windowLayoutParams.x
+                        prefs.yOffset = windowLayoutParams.y
                         windowManager?.updateViewLayout(this@apply, windowLayoutParams)
                     },
-                    onCloseDock = {
-                        stopSelf()
+                    onLockRequested = {
+                        prefs.isLocked = true
+                        refreshFromPrefs()
                     }
                 )
             }
@@ -137,16 +187,46 @@ class FloatingDockService : Service() {
         windowManager?.addView(floatingView, windowLayoutParams)
     }
 
+    private fun readStateFromPrefs() {
+        isLockedState.value = prefs.isLocked
+        widthDpState.intValue = prefs.widthDp
+        heightDpState.intValue = prefs.heightDp
+        cornerRadiusState.intValue = prefs.cornerRadius
+        glassOpacityState.floatValue = prefs.glassOpacity
+    }
+
+    fun refreshFromPrefs() {
+        readStateFromPrefs()
+        if (::windowLayoutParams.isInitialized && floatingView != null) {
+            var flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                    WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or
+                    WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED
+
+            if (isLockedState.value) {
+                flags = flags or WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+            }
+
+            windowLayoutParams.flags = flags
+            windowLayoutParams.x = prefs.xOffset
+            windowLayoutParams.y = prefs.yOffset
+            windowManager?.updateViewLayout(floatingView, windowLayoutParams)
+        }
+    }
+
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent?.action == ACTION_STOP_SERVICE) {
             stopSelf()
             return START_NOT_STICKY
         }
-        return START_STICKY // يعيد تشغيل الخدمة تلقائياً إذا أُغلقت قسراً
+        refreshFromPrefs()
+        return START_STICKY
     }
 
     override fun onDestroy() {
         super.onDestroy()
+        try {
+            unregisterReceiver(prefsReceiver)
+        } catch (_: Exception) {}
         serviceLifecycleOwner.onDestroy()
         if (floatingView != null) {
             windowManager?.removeView(floatingView)

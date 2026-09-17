@@ -1,204 +1,157 @@
 package com.pixel8.iosdock.ui
 
-import android.os.Build
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.spring
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Call
-import androidx.compose.material.icons.rounded.CameraAlt
-import androidx.compose.material.icons.rounded.Language
-import androidx.compose.material.icons.rounded.Message
-import androidx.compose.material.icons.rounded.Settings
+import androidx.compose.material.icons.rounded.Check
+import androidx.compose.material.icons.rounded.DragIndicator
+import androidx.compose.material.icons.rounded.Lock
+import androidx.compose.material.icons.rounded.LockOpen
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.pixel8.iosdock.utils.AppLauncher
-
-data class DockItemData(
-    val id: String,
-    val title: String,
-    val icon: ImageVector,
-    val gradientColors: List<Color>,
-    val actionType: AppLauncher.AppType
-)
+import androidx.compose.ui.unit.sp
 
 /**
- * الواجهة البرمجية للـ Dock العائم المستوحى من iOS
- * محسنة لشاشة Pixel 8 فائقة السلاسة 120Hz
+ * الطبقة الزجاجية الشفافة بنمط iOS Dock Shelf
+ * مصممة لتلتصق بالـ Dock الأصلي لنظام أندرويد وتمنحه مظهر زجاج iOS
+ * بدون أيقونات مكررة، وبخاصية تمرير اللمسات للتطبيقات الأصلية بنسبة 100%
  */
 @Composable
 fun FloatingDockView(
-    modifier: Modifier = Modifier,
+    widthDp: Int = 340,
+    heightDp: Int = 86,
+    cornerRadius: Int = 28,
+    glassOpacity: Float = 0.42f,
+    isLocked: Boolean = true,
     onDragDelta: (dx: Float, dy: Float) -> Unit,
-    onCloseDock: () -> Unit
+    onLockRequested: () -> Unit = {}
 ) {
-    val context = LocalContext.current
-    var pressedIndex by remember { mutableIntStateOf(-1) }
-
-    val defaultApps = remember {
-        listOf(
-            DockItemData("phone", "الهاتف", Icons.Rounded.Call, listOf(Color(0xFF34C759), Color(0xFF248A3D)), AppLauncher.AppType.PHONE),
-            DockItemData("messages", "الرسائل", Icons.Rounded.Message, listOf(Color(0xFF007AFF), Color(0xFF0051A8)), AppLauncher.AppType.MESSAGES),
-            DockItemData("browser", "المتصفح", Icons.Rounded.Language, listOf(Color(0xFF5856D6), Color(0xFF36348E)), AppLauncher.AppType.CHROME),
-            DockItemData("camera", "الكاميرا", Icons.Rounded.CameraAlt, listOf(Color(0xFFFF2D55), Color(0xFFB81D3D)), AppLauncher.AppType.CAMERA),
-            DockItemData("settings", "الإعدادات", Icons.Rounded.Settings, listOf(Color(0xFF8E8E93), Color(0xFF636366)), AppLauncher.AppType.SETTINGS)
-        )
-    }
-
-    Box(
-        modifier = modifier
-            .wrapContentSize()
-            .pointerInput(Unit) {
-                detectDragGestures { change, dragAmount ->
-                    change.consume()
-                    onDragDelta(dragAmount.x, dragAmount.y)
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        // شريط أدوات الضبط السريع يظهر فقط عندما يكون وضع التعديل مفتوحاً (غير مقفول)
+        AnimatedVisibility(
+            visible = !isLocked,
+            enter = fadeIn(),
+            exit = fadeOut()
+        ) {
+            Row(
+                modifier = Modifier
+                    .padding(bottom = 8.dp)
+                    .shadow(8.dp, RoundedCornerShape(20.dp))
+                    .clip(RoundedCornerShape(20.dp))
+                    .background(Color(0xE61C1C1E))
+                    .padding(horizontal = 14.dp, vertical = 6.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.DragIndicator,
+                    contentDescription = null,
+                    tint = Color(0xFFAAAAAA),
+                    modifier = Modifier.size(18.dp)
+                )
+                Text(
+                    text = "اسحب لوضعها على الـ Dock الأصلي",
+                    color = Color.White,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Medium,
+                    modifier = Modifier.padding(horizontal = 8.dp)
+                )
+                Button(
+                    onClick = onLockRequested,
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF34C759)),
+                    shape = RoundedCornerShape(12.dp),
+                    contentPadding = ButtonDefaults.ContentPadding
+                ) {
+                    Icon(Icons.Rounded.Check, contentDescription = null, modifier = Modifier.size(16.dp))
+                    Text("قفل وتمرير اللمس", fontSize = 11.sp, fontWeight = FontWeight.Bold)
                 }
             }
-            .padding(8.dp)
-    ) {
-        // حاوية تأثير الزجاج الفاخر iOS Frosted Glass بدون تشويش على الأيقونات الداخلية
+        }
+
+        // الطبقة الزجاجية الشفافة الفاخرة (iOS Dock Shelf)
         Box(
             modifier = Modifier
+                .width(widthDp.dp)
+                .height(heightDp.dp)
                 .shadow(
-                    elevation = 18.dp,
-                    shape = RoundedCornerShape(28.dp),
-                    spotColor = Color(0x33000000),
-                    ambientColor = Color(0x22000000)
+                    elevation = 16.dp,
+                    shape = RoundedCornerShape(cornerRadius.dp),
+                    spotColor = Color(0x35000000),
+                    ambientColor = Color(0x20000000)
                 )
-                .clip(RoundedCornerShape(28.dp))
-                // لون زجاجي فاخر نصف شفاف بنمط شريط dock في نظام iOS
+                .clip(RoundedCornerShape(cornerRadius.dp))
+                // زجاج iOS الشفاف الذي يسمح برؤية أيقونات Dock أندرويد الأصلية وخلفية الشاشة
                 .background(
                     Brush.verticalGradient(
                         colors = listOf(
-                            Color(0xE6FFFFFF),
-                            Color(0xCCF2F2F7)
+                            Color.White.copy(alpha = glassOpacity),
+                            Color(0xFFE5E5EA).copy(alpha = glassOpacity * 0.75f)
                         )
                     )
                 )
-                // إطار خارجي عاكس ولامع يبرز حواف الزجاج
+                // إطار خارجي أبيض لامع يحاكي انعكاس الضوء على زجاج شريط iOS
                 .border(
                     width = 1.2.dp,
                     brush = Brush.verticalGradient(
                         colors = listOf(
-                            Color.White.copy(alpha = 0.95f),
-                            Color.White.copy(alpha = 0.40f)
+                            Color.White.copy(alpha = 0.85f),
+                            Color.White.copy(alpha = 0.25f)
                         )
                     ),
-                    shape = RoundedCornerShape(28.dp)
+                    shape = RoundedCornerShape(cornerRadius.dp)
                 )
-                .padding(horizontal = 14.dp, vertical = 9.dp)
-        ) {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(14.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                defaultApps.forEachIndexed { index, item ->
-                    // حساب مقياس التكبير بالنوابض (Spring Physics Animation)
-                    val isDirectlyPressed = (pressedIndex == index)
-                    val isNeighbor = (pressedIndex != -1 && (pressedIndex == index - 1 || pressedIndex == index + 1))
-
-                    val targetScale = when {
-                        isDirectlyPressed -> 1.30f
-                        isNeighbor -> 1.12f
-                        else -> 1.0f
-                    }
-
-                    // حركة نوابض فيزيائية فائقة السلاسة متزامنة مع 120Hz
-                    val animatedScale by animateFloatAsState(
-                        targetValue = targetScale,
-                        animationSpec = spring(
-                            dampingRatio = Spring.DampingRatioMediumBouncy,
-                            stiffness = Spring.StiffnessLow
-                        ),
-                        label = "spring_dock_icon_scale"
-                    )
-
-                    DockIconItem(
-                        item = item,
-                        scale = animatedScale,
-                        onPressStateChanged = { isPressed ->
-                            pressedIndex = if (isPressed) index else -1
-                        },
-                        onClick = {
-                            AppLauncher.launchApp(context, item.actionType)
+                // مستشعر السحب فقط في حال كان غير مقفول
+                .then(
+                    if (!isLocked) {
+                        Modifier.pointerInput(Unit) {
+                            detectDragGestures { change, dragAmount ->
+                                change.consume()
+                                onDragDelta(dragAmount.x, dragAmount.y)
+                            }
                         }
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun DockIconItem(
-    item: DockItemData,
-    scale: Float,
-    onPressStateChanged: (Boolean) -> Unit,
-    onClick: () -> Unit
-) {
-    Box(
-        modifier = Modifier
-            .size(54.dp)
-            .graphicsLayer {
-                scaleX = scale
-                scaleY = scale
-                translationY = if (scale > 1f) -(scale - 1f) * 24.dp.toPx() else 0f
-            }
-            .pointerInput(Unit) {
-                detectTapGestures(
-                    onPress = {
-                        onPressStateChanged(true)
-                        tryAwaitRelease()
-                        onPressStateChanged(false)
-                    },
-                    onTap = {
-                        onClick()
+                    } else {
+                        Modifier
                     }
-                )
-            },
-        contentAlignment = Alignment.Center
-    ) {
-        // أيقونة التطبيق بتدرج لوني فخم
-        Box(
-            modifier = Modifier
-                .size(52.dp)
-                .shadow(6.dp, RoundedCornerShape(16.dp))
-                .clip(RoundedCornerShape(16.dp))
-                .background(Brush.linearGradient(item.gradientColors)),
+                ),
             contentAlignment = Alignment.Center
         ) {
-            Icon(
-                imageVector = item.icon,
-                contentDescription = item.title,
-                tint = Color.White,
-                modifier = Modifier.size(28.dp)
-            )
+            // مؤشر خفيف جداً يظهر فقط عند الضبط للمساعدة في المحاذاة
+            if (!isLocked) {
+                Box(
+                    modifier = Modifier
+                        .size(width = 36.dp, height = 4.dp)
+                        .clip(CircleShape)
+                        .background(Color.Black.copy(alpha = 0.2f))
+                )
+            }
         }
     }
 }

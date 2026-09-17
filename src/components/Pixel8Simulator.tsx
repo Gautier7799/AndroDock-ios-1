@@ -21,7 +21,9 @@ import {
   Zap,
   Globe,
   Sparkles,
-  LayoutGrid
+  LayoutGrid,
+  Phone,
+  MessageSquare
 } from 'lucide-react';
 import { DockApp, DockSettings, SimulatedAppType, IntegrationMode } from '../types';
 import { FloatingDockOverlay } from './FloatingDockOverlay';
@@ -255,6 +257,38 @@ export const Pixel8Simulator: React.FC<Pixel8SimulatorProps> = ({
                       onOpenWidgetPicker={() => setShowWidgetsPicker(true)}
                     />
                   )}
+
+                  {/* NATIVE PIXEL 8 DOCK ROW (Phone, Messages, Web, Camera) */}
+                  <div className="w-full relative py-2 mb-1 flex items-center justify-around z-20">
+                    <button
+                      onClick={() => handleAppLaunch({ id: 'phone', name: 'Phone', nameAr: 'الهاتف', packageName: 'com.google.android.dialer', iconName: 'Phone', color: 'emerald', gradient: 'from-emerald-500 to-green-600' })}
+                      className="w-12 h-12 rounded-full bg-emerald-500 hover:bg-emerald-400 text-white flex items-center justify-center shadow-lg border border-white/20 active:scale-95 transition-all"
+                      title="الهاتف الأصلي"
+                    >
+                      <Phone size={22} />
+                    </button>
+                    <button
+                      onClick={() => handleAppLaunch({ id: 'messages', name: 'Messages', nameAr: 'الرسائل', packageName: 'com.google.android.apps.messaging', iconName: 'MessageSquare', color: 'blue', gradient: 'from-blue-500 to-indigo-600' })}
+                      className="w-12 h-12 rounded-full bg-blue-500 hover:bg-blue-400 text-white flex items-center justify-center shadow-lg border border-white/20 active:scale-95 transition-all"
+                      title="الرسائل الأصلية"
+                    >
+                      <MessageSquare size={22} />
+                    </button>
+                    <button
+                      onClick={() => handleAppLaunch({ id: 'chrome', name: 'Chrome', nameAr: 'المتصفح', packageName: 'com.android.chrome', iconName: 'Compass', color: 'amber', gradient: 'from-amber-500 to-orange-600' })}
+                      className="w-12 h-12 rounded-full bg-slate-900 border-2 border-amber-400 text-amber-300 flex items-center justify-center shadow-lg active:scale-95 transition-all font-black text-lg"
+                      title="المتصفح الأصلي"
+                    >
+                      W
+                    </button>
+                    <button
+                      onClick={() => handleAppLaunch({ id: 'camera', name: 'Camera', nameAr: 'الكاميرا', packageName: 'com.google.android.GoogleCamera', iconName: 'Camera', color: 'rose', gradient: 'from-rose-500 to-red-600' })}
+                      className="w-12 h-12 rounded-full bg-rose-500 hover:bg-rose-400 text-white flex items-center justify-center shadow-lg border border-white/20 active:scale-95 transition-all"
+                      title="الكاميرا الأصلية"
+                    >
+                      <Camera size={22} />
+                    </button>
+                  </div>
 
                   {/* Pixel Search Bar */}
                   <div className="w-full bg-slate-900/80 backdrop-blur-md border border-white/10 rounded-full px-4 py-2 flex items-center justify-between text-slate-400 mb-2 shadow-lg relative z-10">
