@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Pixel 8 iOS Dock</string>
+    <string name="widget_name">iOS Dock (ودجت النظام)</string>
+    <string name="widget_description">ودجت الشاشة الرئيسية المدمج بنظام أندرويد لفتح التطبيقات بتصميم زجاجي فاخر</string>
+</resources>

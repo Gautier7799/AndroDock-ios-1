@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.pixel8.iosdock">
+
+    <!-- ودجت الشاشة الرئيسية المدمج بالنظام (AppWidget) لا يتطلب أي أذونات خاصة! -->
+
+    <!-- أذونات إضافية اختيارية فقط في حال رغبة المستخدم بتفعيل الطفو العائم فوق الألعاب والتطبيقات -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <!-- إذن الاستعلام عن التطبيقات لفتحها من الـ Dock والودجت -->
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"
+        tools:ignore="QueryAllPackagesPermission" />
+
+    <application
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Pixel8IOSDock">
+
+        <!-- واجهة الإعدادات وتخصيص الودجت -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Pixel8IOSDock">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- 🌟 مستقبل ودجت النظام المدمج (Android Home Screen AppWidget) 🌟 -->
+        <!-- يظهر في قائمة الودجات الرسمية لنظام أندرويد 12 و 13 و 14 و 15 بدون أذونات -->
+        <receiver
+            android:name=".widget.IOSDockWidgetReceiver"
+            android:label="@string/widget_name"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/ios_dock_widget_info" />
+        </receiver>
+
+        <!-- خدمة الـ Dock الأمامية (اختيارية لوضع الطفو العائم فوق التطبيقات) -->
+        <service
+            android:name=".FloatingDockService"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Floating iOS Dock system navigation overlay for quick multi-tasking" />
+        </service>
+
+    </application>
+
+</manifest>
