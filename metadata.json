@@ -1,0 +1,6 @@
+{
+  "name": "Pixel 8 iOS Floating Dock",
+  "description": "Android System AppWidget (Jetpack Glance) and iOS-style Dock for Google Pixel 8, built with Kotlin, Compose BOM, and Native Launcher integration.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
