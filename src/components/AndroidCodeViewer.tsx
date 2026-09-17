@@ -64,6 +64,22 @@ export const AndroidCodeViewer: React.FC = () => {
 
         {/* Action Buttons */}
         <div className="flex items-center gap-2">
+          {/* Quick Jump to GitHub Actions Workflow */}
+          <button
+            onClick={() => {
+              const workflowIdx = ANDROID_PROJECT_FILES.findIndex(
+                (f) => f.path === '.github/workflows/main.yml'
+              );
+              if (workflowIdx !== -1) setSelectedFileIndex(workflowIdx);
+            }}
+            className="flex items-center gap-1.5 px-3 py-2 bg-purple-950/60 hover:bg-purple-900/60 text-purple-300 hover:text-white rounded-xl text-xs font-semibold border border-purple-500/30 active:scale-95 transition-all"
+            title="فتح ملف GitHub Actions لبناء APK تلقائياً"
+            id="btn-goto-workflow"
+          >
+            <Zap size={13} className="text-purple-400" />
+            <span>ملف GitHub Actions (APK)</span>
+          </button>
+
           <button
             onClick={handleCopy}
             className="flex items-center gap-1.5 px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white rounded-xl text-xs font-semibold border border-slate-700 active:scale-95 transition-all"

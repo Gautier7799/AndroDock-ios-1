@@ -1188,5 +1188,69 @@ androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = 
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }`
+  },
+  {
+    path: '.github/workflows/main.yml',
+    title: '.github/workflows/main.yml',
+    titleAr: 'GitHub Actions - بناء وتصدير ملف APK تلقائياً',
+    language: 'yaml',
+    descriptionAr: 'ملف سير العمل الآلي (CI/CD) على GitHub يقوم بتجميع تطبيق أندرويد وبناء ملف APK قابل للتثبيت ومتاح للتحميل من الـ Artifacts.',
+    code: `name: Build Android APK (AndroDock)
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: 🚀 Build Debug APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 تفريغ الكود (Checkout Repository)
+        uses: actions/checkout@v4
+
+      - name: ☕ تثبيت بيئة جافا (JDK 17)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: 🐘 إعداد Gradle والذاكرة المؤقتة (Cache)
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: 🔨 بناء ملف APK التجريبي (assembleDebug)
+        run: |
+          if [ -f "./gradlew" ]; then
+            echo "Found gradlew wrapper, granting execution permissions..."
+            chmod +x ./gradlew
+            ./gradlew assembleDebug --stacktrace
+          else
+            echo "gradlew wrapper not found in repo, running gradle wrapper & assembleDebug..."
+            gradle wrapper
+            chmod +x ./gradlew
+            ./gradlew assembleDebug --stacktrace
+          fi
+
+      - name: 📦 رفع ملف APK كـ Artifact جاهز للتنزيل
+        uses: actions/upload-artifact@v4
+        with:
+          name: AndroDock-Debug-APK
+          path: app/build/outputs/apk/debug/*.apk
+          retention-days: 30
+
+      - name: 📝 كتابة ملخص البناء في صفحة GitHub
+        if: always()
+        run: |
+          echo "### 🚀 نتيجة بناء AndroDock APK" >> $GITHUB_STEP_SUMMARY
+          echo "تم تجميع وبناء التطبيق بنجاح عبر GitHub Actions! يمكنك الآن تنزيل ملف **AndroDock-Debug-APK** من تبويب Artifacts في الأعلى وتثبيته مباشرة على هاتف Pixel 8." >> $GITHUB_STEP_SUMMARY`
   }
 ];

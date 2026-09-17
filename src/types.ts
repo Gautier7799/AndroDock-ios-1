@@ -32,7 +32,7 @@ export interface AndroidCodeFile {
   path: string;
   title: string;
   titleAr: string;
-  language: 'kotlin' | 'xml' | 'groovy';
+  language: 'kotlin' | 'xml' | 'groovy' | 'yaml';
   descriptionAr: string;
   code: string;
 }

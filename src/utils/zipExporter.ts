@@ -58,6 +58,36 @@ export async function exportAndroidStudioProject(): Promise<void> {
   );
 
   zip.file(
+    'gradle/wrapper/gradle-wrapper.properties',
+    `distributionBase=GRADLE_USER_HOME
+distributionPath=wrapper/dists
+distributionUrl=https\\://services.gradle.org/distributions/gradle-8.9-bin.zip
+networkTimeout=10000
+validateDistributionUrl=true
+zipStoreBase=GRADLE_USER_HOME
+zipStorePath=wrapper/dists`
+  );
+
+  zip.file(
+    '.gitignore',
+    `*.iml
+.gradle
+/local.properties
+/.idea/caches
+/.idea/libraries
+/.idea/modules.xml
+/.idea/workspace.xml
+/.idea/navEditor.xml
+/.idea/assetWizardSettings.xml
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+.cxx
+local.properties`
+  );
+
+  zip.file(
     'settings.gradle.kts',
     `pluginManagement {
     repositories {
@@ -74,7 +104,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Pixel8IOSDock"
+rootProject.name = "AndroDock"
 include(":app")`
   );
 
