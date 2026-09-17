@@ -9,8 +9,7 @@ export const ANDROID_PROJECT_FILES: AndroidCodeFile[] = [
     descriptionAr: 'تسجيل مستقبل ودجت النظام (AppWidget Receiver) بالإضافة إلى خدمة الطفو الاختيارية وأذونات أندرويد 14 و 15.',
     code: `<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="com.pixel8.iosdock">
+    xmlns:tools="http://schemas.android.com/tools">
 
     <!-- ودجت الشاشة الرئيسية المدمج بالنظام (AppWidget) لا يتطلب أي أذونات خاصة! -->
 
@@ -93,7 +92,7 @@ import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
 import androidx.glance.Image
 import androidx.glance.ImageProvider
-import androidx.glance.action.actionStartActivity
+import androidx.glance.appwidget.action.actionStartActivity
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.cornerRadius
@@ -376,7 +375,7 @@ class FloatingDockService : Service() {
 
     private var windowManager: WindowManager? = null
     private var floatingView: ComposeView? = null
-    private lateinit var layoutParams: WindowManager.LayoutParams
+    private lateinit var windowLayoutParams: WindowManager.LayoutParams
 
     // متحكم دورة الحياة للـ ComposeView داخل الـ Service لمنع Exception
     private val serviceLifecycleOwner = CustomServiceLifecycleOwner()
@@ -437,7 +436,7 @@ class FloatingDockService : Service() {
             WindowManager.LayoutParams.TYPE_PHONE
         }
 
-        layoutParams = WindowManager.LayoutParams(
+        windowLayoutParams = WindowManager.LayoutParams(
             WindowManager.LayoutParams.WRAP_CONTENT,
             WindowManager.LayoutParams.WRAP_CONTENT,
             layoutType,
@@ -461,9 +460,9 @@ class FloatingDockService : Service() {
             setContent {
                 FloatingDockView(
                     onDragDelta = { dx, dy ->
-                        layoutParams.x += dx.toInt()
-                        layoutParams.y -= dy.toInt() // العكس لأن الإحداثيات من الأسفل
-                        windowManager?.updateViewLayout(this@apply, layoutParams)
+                        windowLayoutParams.x += dx.toInt()
+                        windowLayoutParams.y -= dy.toInt() // العكس لأن الإحداثيات من الأسفل
+                        windowManager?.updateViewLayout(this@apply, windowLayoutParams)
                     },
                     onCloseDock = {
                         stopSelf()
@@ -472,7 +471,7 @@ class FloatingDockService : Service() {
             }
         }
 
-        windowManager?.addView(floatingView, layoutParams)
+        windowManager?.addView(floatingView, windowLayoutParams)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {

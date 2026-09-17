@@ -38,7 +38,7 @@ class FloatingDockService : Service() {
 
     private var windowManager: WindowManager? = null
     private var floatingView: ComposeView? = null
-    private lateinit var layoutParams: WindowManager.LayoutParams
+    private lateinit var windowLayoutParams: WindowManager.LayoutParams
 
     // متحكم دورة الحياة للـ ComposeView داخل الـ Service لمنع Exception
     private val serviceLifecycleOwner = CustomServiceLifecycleOwner()
@@ -99,7 +99,7 @@ class FloatingDockService : Service() {
             WindowManager.LayoutParams.TYPE_PHONE
         }
 
-        layoutParams = WindowManager.LayoutParams(
+        windowLayoutParams = WindowManager.LayoutParams(
             WindowManager.LayoutParams.WRAP_CONTENT,
             WindowManager.LayoutParams.WRAP_CONTENT,
             layoutType,
@@ -123,9 +123,9 @@ class FloatingDockService : Service() {
             setContent {
                 FloatingDockView(
                     onDragDelta = { dx, dy ->
-                        layoutParams.x += dx.toInt()
-                        layoutParams.y -= dy.toInt() // العكس لأن الإحداثيات من الأسفل
-                        windowManager?.updateViewLayout(this@apply, layoutParams)
+                        windowLayoutParams.x += dx.toInt()
+                        windowLayoutParams.y -= dy.toInt() // العكس لأن الإحداثيات من الأسفل
+                        windowManager?.updateViewLayout(this@apply, windowLayoutParams)
                     },
                     onCloseDock = {
                         stopSelf()
@@ -134,7 +134,7 @@ class FloatingDockService : Service() {
             }
         }
 
-        windowManager?.addView(floatingView, layoutParams)
+        windowManager?.addView(floatingView, windowLayoutParams)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
