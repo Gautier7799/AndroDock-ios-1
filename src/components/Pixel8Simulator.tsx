@@ -203,48 +203,60 @@ export const Pixel8Simulator: React.FC<Pixel8SimulatorProps> = ({
                     <div className="absolute -bottom-10 -left-10 w-64 h-64 bg-emerald-500 rounded-full blur-3xl" />
                   </div>
 
-                  {/* Pixel "At a Glance" widget */}
-                  <div className="mt-4 px-2 relative z-10 flex items-center justify-between">
-                    <div>
-                      <div className="text-2xl font-light text-white tracking-wide">
-                        الخميس، 17 سبتمبر
+                  {/* Top Widgets: Matching User's Screenshot (Weather 32° + Gemini) */}
+                  <div className="grid grid-cols-2 gap-2 mt-2 px-1 relative z-10">
+                    {/* 1. Weather Widget (32° with sun/cloud) */}
+                    <div className="bg-white/90 text-slate-900 rounded-3xl p-3 shadow-lg flex items-center justify-between border border-white/40">
+                      <div>
+                        <div className="text-3xl font-black tracking-tight">32°</div>
+                        <div className="text-[10px] text-slate-600 font-medium">الرياض • مشمس</div>
                       </div>
-                      <div className="flex items-center gap-2 mt-0.5 text-slate-300 text-xs">
-                        <span className="text-amber-300">26°C صافٍ</span>
-                        <span>•</span>
-                        <span className="text-cyan-300">Pixel 8 Actua Display</span>
+                      <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center text-amber-500 shadow-inner">
+                        <Sparkles size={22} className="fill-amber-400" />
                       </div>
                     </div>
-                    {integrationMode === 'system_widget' && (
-                      <button
-                        onClick={() => setShowWidgetsPicker(true)}
-                        className="bg-slate-900/80 border border-slate-700 hover:border-cyan-500/50 px-2.5 py-1.5 rounded-xl text-cyan-400 hover:text-white text-[10px] flex items-center gap-1 shadow transition-colors"
-                        title="فتح قائمة ودجات نظام أندرويد"
-                      >
-                        <Sparkles size={11} />
-                        <span>الودجات</span>
-                      </button>
-                    )}
+
+                    {/* 2. Gemini Widget (Gemini, Vidéo, Live) */}
+                    <div className="bg-slate-900/90 text-white rounded-3xl p-3 shadow-lg border border-white/10 flex flex-col justify-between">
+                      <div className="flex items-center gap-1.5 text-xs font-bold text-cyan-300">
+                        <Sparkles size={14} className="text-cyan-400" />
+                        <span>Gemini AI</span>
+                      </div>
+                      <div className="flex items-center gap-1 mt-2">
+                        <button
+                          onClick={() => handleAppLaunch({ id: 'camera', name: 'Vidéo', nameAr: 'فيديو', packageName: 'com.google.gemini.video', iconName: 'Camera', color: 'rose', gradient: 'from-rose-500 to-red-600' })}
+                          className="flex-1 bg-slate-800 hover:bg-slate-700 text-[9px] py-1 px-1.5 rounded-xl text-center text-slate-300 font-medium transition-colors"
+                        >
+                          Vidéo
+                        </button>
+                        <button
+                          onClick={() => handleAppLaunch({ id: 'chrome', name: 'Live', nameAr: 'مباشر', packageName: 'com.google.gemini.live', iconName: 'Compass', color: 'amber', gradient: 'from-amber-500 to-orange-600' })}
+                          className="flex-1 bg-cyan-950/80 border border-cyan-500/30 text-cyan-300 text-[9px] py-1 px-1.5 rounded-xl text-center font-bold"
+                        >
+                          Live
+                        </button>
+                      </div>
+                    </div>
                   </div>
 
-                  {/* Mock homescreen app grid */}
-                  <div className="grid grid-cols-4 gap-3 px-2 my-auto relative z-10">
+                  {/* Homescreen Apps Row (Play Store, Gmail, Photos, YouTube Pro - from Screenshot) */}
+                  <div className="grid grid-cols-4 gap-2.5 px-2 my-auto relative z-10">
                     {[
-                      { name: 'الصور', color: 'from-amber-400 to-rose-500' },
-                      { name: 'الخرائط', color: 'from-emerald-400 to-teal-600' },
-                      { name: 'Drive', color: 'from-blue-400 to-indigo-600' },
-                      { name: 'Play', color: 'from-cyan-400 to-blue-600' },
-                      { name: 'التقويم', color: 'from-violet-400 to-purple-600' },
-                      { name: 'Keep', color: 'from-yellow-400 to-amber-600' },
-                      { name: 'الملفات', color: 'from-sky-400 to-blue-600' },
-                      { name: 'Gmail', color: 'from-red-500 to-rose-700' }
+                      { id: 'chrome', name: 'Play Store', icon: '▶', gradient: 'from-cyan-400 via-emerald-400 to-blue-500' },
+                      { id: 'messages', name: 'Gmail', icon: 'M', gradient: 'from-red-500 to-rose-600' },
+                      { id: 'camera', name: 'Photos', icon: '✤', gradient: 'from-amber-400 via-rose-500 to-blue-600' },
+                      { id: 'spotify', name: 'YouTube Pro', icon: '▶', gradient: 'from-red-600 to-red-700' }
                     ].map((app, idx) => (
-                      <div key={idx} className="flex flex-col items-center gap-1 opacity-70">
-                        <div className={`w-11 h-11 rounded-2xl bg-gradient-to-tr ${app.color} shadow-sm border border-white/10 flex items-center justify-center text-white text-xs font-bold`}>
-                          {app.name[0]}
+                      <button
+                        key={idx}
+                        onClick={() => handleAppLaunch({ id: app.id as any, name: app.name, nameAr: app.name, packageName: 'com.android.app', iconName: 'Grid', color: 'blue', gradient: app.gradient })}
+                        className="flex flex-col items-center gap-1 active:scale-90 transition-transform group"
+                      >
+                        <div className={`w-13 h-13 rounded-2xl bg-gradient-to-tr ${app.gradient} shadow-md border border-white/20 flex items-center justify-center text-white text-base font-black group-hover:shadow-lg transition-all`}>
+                          {app.icon}
                         </div>
-                        <span className="text-[10px] text-slate-300">{app.name}</span>
-                      </div>
+                        <span className="text-[10px] text-slate-200 font-medium">{app.name}</span>
+                      </button>
                     ))}
                   </div>
 
@@ -258,8 +270,33 @@ export const Pixel8Simulator: React.FC<Pixel8SimulatorProps> = ({
                     />
                   )}
 
-                  {/* NATIVE PIXEL 8 DOCK ROW (Phone, Messages, Chrome Beta, Camera - Exact Match to User Screenshot) */}
-                  <div className="w-full relative py-2 mb-1 flex items-center justify-around z-20">
+                  {/* 🌟 IOS FROSTED GLASS DOCK (الرف الزجاجي الشفاف iOS كما في لقطة شاشتك تماماً) 🌟 */}
+                  {/* يلتف الرف الزجاجي الشفاف حول أيقوناتك الحالية (الهاتف، الرسائل، كروم بيتا، الكاميرا) */}
+                  <motion.div
+                    initial={{ y: 0, opacity: 1 }}
+                    animate={{
+                      y: (settings.hideInApps && activeApp !== 'home') ? 140 : 0,
+                      opacity: (settings.hideInApps && activeApp !== 'home') ? 0 : 1
+                    }}
+                    transition={{
+                      type: 'spring',
+                      damping: 24,
+                      stiffness: 320
+                    }}
+                    style={{
+                      backdropFilter: `blur(${settings.blurRadius || 28}px)`,
+                      WebkitBackdropFilter: `blur(${settings.blurRadius || 28}px)`,
+                      backgroundColor: `rgba(255, 255, 255, ${settings.dockOpacity || 0.45})`,
+                      borderRadius: `${settings.dockCornerRadius || 30}px`,
+                      boxShadow: '0 12px 32px -4px rgba(0, 0, 0, 0.35), 0 0 0 1.2px rgba(255, 255, 255, 0.75) inset',
+                      width: '100%',
+                      maxWidth: `${settings.dockWidth || 356}px`,
+                      height: `${settings.dockHeight || 78}px`
+                    }}
+                    className="relative mx-auto mb-1 flex items-center justify-around px-2 border border-white/40 z-30 select-none shadow-2xl"
+                    title="الرف الزجاجي الشفاف iOS (AndroDock v2.0)"
+                  >
+                    {/* 1. الهاتف الأصلي */}
                     <button
                       onClick={() => handleAppLaunch({ id: 'phone', name: 'Phone', nameAr: 'الهاتف', packageName: 'com.google.android.dialer', iconName: 'Phone', color: 'blue', gradient: 'from-blue-500 to-indigo-600' })}
                       className="w-13 h-13 rounded-full bg-white text-blue-500 flex items-center justify-center shadow-md border border-black/5 active:scale-90 transition-transform"
@@ -268,6 +305,7 @@ export const Pixel8Simulator: React.FC<Pixel8SimulatorProps> = ({
                       <Phone size={24} className="fill-blue-500/20" />
                     </button>
 
+                    {/* 2. الرسائل الأصلية مع شارة "1" */}
                     <button
                       onClick={() => handleAppLaunch({ id: 'messages', name: 'Messages', nameAr: 'الرسائل', packageName: 'com.google.android.apps.messaging', iconName: 'MessageSquare', color: 'blue', gradient: 'from-blue-500 to-indigo-600' })}
                       className="w-13 h-13 rounded-full bg-white text-blue-500 flex items-center justify-center shadow-md border border-black/5 active:scale-90 transition-transform relative"
@@ -279,6 +317,7 @@ export const Pixel8Simulator: React.FC<Pixel8SimulatorProps> = ({
                       </span>
                     </button>
 
+                    {/* 3. Chrome Beta الأصلي (مطابق للقطة الشاشة) */}
                     <button
                       onClick={() => handleAppLaunch({ id: 'chrome', name: 'Chrome Beta', nameAr: 'Chrome Beta', packageName: 'com.chrome.beta', iconName: 'Compass', color: 'amber', gradient: 'from-amber-500 to-orange-600' })}
                       className="w-13 h-13 rounded-full bg-white flex items-center justify-center shadow-md border border-black/5 active:scale-90 transition-transform relative overflow-hidden"
@@ -298,6 +337,7 @@ export const Pixel8Simulator: React.FC<Pixel8SimulatorProps> = ({
                       </div>
                     </button>
 
+                    {/* 4. الكاميرا الأصلية */}
                     <button
                       onClick={() => handleAppLaunch({ id: 'camera', name: 'Camera', nameAr: 'الكاميرا', packageName: 'com.google.android.GoogleCamera', iconName: 'Camera', color: 'rose', gradient: 'from-rose-500 to-red-600' })}
                       className="w-13 h-13 rounded-full bg-white flex items-center justify-center shadow-md border border-black/5 active:scale-90 transition-transform relative text-slate-700"
@@ -308,7 +348,7 @@ export const Pixel8Simulator: React.FC<Pixel8SimulatorProps> = ({
                         <div className="absolute w-2 h-2 rounded-full bg-blue-500/70" />
                       </div>
                     </button>
-                  </div>
+                  </motion.div>
 
                   {/* Pixel Search Bar */}
                   <div className="w-full bg-slate-900/80 backdrop-blur-md border border-white/10 rounded-full px-4 py-2 flex items-center justify-between text-slate-400 mb-2 shadow-lg relative z-10">
@@ -537,8 +577,8 @@ export const Pixel8Simulator: React.FC<Pixel8SimulatorProps> = ({
             </AnimatePresence>
 
             {/* THE FLOATING IOS DOCK OVERLAY! */}
-            {/* Floats above whatever app is currently active on the Pixel 8! */}
-            {integrationMode === 'floating_overlay' && (
+            {/* يظهر فقط عند تفعيل وضع الأيقونات الدائرية البديلة؛ أما في وضع الرف الشفاف فهو مدمج مباشرة حول أيقونات الشاشة الرئيسية */}
+            {integrationMode === 'floating_overlay' && settings.dockStyle === 'ios_launcher_circles' && (
               <FloatingDockOverlay
                 apps={apps}
                 settings={settings}
@@ -629,11 +669,22 @@ export const Pixel8Simulator: React.FC<Pixel8SimulatorProps> = ({
           </div>
 
           {/* Android Gesture Navigation Pill at Bottom */}
-          <div className="h-7 w-full flex items-center justify-center bg-transparent z-40">
+          <div className="relative w-full flex flex-col items-center justify-center bg-transparent z-40 pb-2">
+            {activeApp !== 'home' && settings.hideInApps && (
+              <motion.div
+                initial={{ y: 15, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                className="mb-1 bg-slate-950/90 border border-cyan-500/50 text-cyan-300 text-[10px] px-3 py-0.5 rounded-full shadow-lg backdrop-blur-md flex items-center gap-1.5 pointer-events-none"
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping" />
+                <span>انسحب الـ Dock تلقائياً • اضغط الشريط الأبيض للرجوع</span>
+              </motion.div>
+            )}
+
             <button
               onClick={() => setActiveApp('home')}
-              className="w-28 h-1 bg-white/40 hover:bg-white/80 rounded-full cursor-pointer transition-colors active:scale-95"
-              title="انقر للرجوع للشاشة الرئيسية (Home Gesture)"
+              className="w-28 h-1 bg-white/50 hover:bg-white rounded-full cursor-pointer transition-all active:scale-95 hover:h-1.5"
+              title="انقر للرجوع للشاشة الرئيسية وعودة شريط الـ Dock"
               id="android-gesture-pill"
             />
           </div>

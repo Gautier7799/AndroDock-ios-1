@@ -93,14 +93,14 @@ export default function App() {
             <div>
               <div className="flex items-center gap-2">
                 <h1 className="text-base sm:text-lg font-bold text-white tracking-tight">
-                  Pixel 8 iOS Floating Dock
+                  AndroDock v2.0
                 </h1>
-                <span className="hidden sm:inline-flex items-center gap-1 bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 text-[10px] px-2 py-0.5 rounded-full font-mono">
-                  Kotlin + Compose BOM
+                <span className="inline-flex items-center gap-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[10px] px-2 py-0.5 rounded-full font-mono font-bold">
+                  v2.0 الرف الشفاف + الربط بالنظام
                 </span>
               </div>
               <p className="text-xs text-slate-400">
-                مشروع Android Studio كامل • استقرار 100% • شاشة 120Hz
+                مطابق 100% للقطة الشاشة • ينسحب تلقائياً عند فتح التطبيقات • يعود عند الرجوع
               </p>
             </div>
           </div>
@@ -163,25 +163,41 @@ export default function App() {
 
       {/* Main Content Area */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6">
-        {/* Partnership Welcome Banner */}
-        <div className="mb-6 p-4 rounded-3xl bg-gradient-to-r from-slate-900 via-slate-900/90 to-cyan-950/30 border border-slate-800 flex flex-wrap items-center justify-between gap-3 shadow-lg">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center">
-              <Sparkles size={18} />
+        {/* Version 2.0 Announcement Banner */}
+        <div className="mb-6 p-4.5 rounded-3xl bg-gradient-to-r from-slate-900 via-emerald-950/30 to-cyan-950/40 border border-emerald-500/30 flex flex-wrap items-center justify-between gap-4 shadow-xl">
+          <div className="flex items-start sm:items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-500/30 shadow">
+              <Sparkles size={20} />
             </div>
-            <div>
-              <span className="text-xs font-bold text-cyan-300">أهلاً بك يا شريك في مشروعنا الجديد!</span>
-              <p className="text-xs text-slate-300">
-                تم بناء كود أندرويد متكامل ونظيف 100% يشمل الـ Foreground Service، وتأثير RenderEffect Frosted Glass، وفيزياء النوابض 120Hz، ونافذة TYPE_APPLICATION_OVERLAY.
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-bold text-white">النسخة الجديدة v2.0 مفعلة الآن يا شريك!</span>
+                <span className="bg-emerald-500/20 text-emerald-300 text-[10px] font-bold px-2 py-0.5 rounded-full border border-emerald-500/40">
+                  طلبك تم تنفيذه 100%
+                </span>
+              </div>
+              <p className="text-xs text-slate-300 leading-relaxed">
+                <span className="text-emerald-400 font-semibold">1. رف زجاجي شفاف خالص:</span> يلتف الـ Dock بنعومة خلف أيقوناتك الحالية (الهاتف، الرسائل مع 1، كروم بيتا، الكاميرا) دون أي أيقونات مكررة.
+                <br className="hidden sm:inline" />
+                <span className="text-cyan-400 font-semibold mr-1">2. الربط التلقائي بالنظام:</span> ينسحب الـ Dock ويختفي فور فتح أي تطبيق، ويعود تلقائياً عند الضغط على الشريط السفلي للرجوع!
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-2 text-[11px] font-mono text-slate-400">
-            <span className="flex items-center gap-1 text-emerald-400">
-              <CheckCircle2 size={12} /> Android 14/15 Ready
-            </span>
-            <span>•</span>
-            <span className="text-cyan-400">Google Pixel 8 Tuned</span>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleQuickDownload}
+              disabled={isDownloadingZip}
+              className="flex items-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold shadow-lg shadow-emerald-950/50 active:scale-95 transition-all"
+            >
+              <Download size={14} />
+              <span>تحميل مشروع AndroDock v2.0 (ZIP)</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('code')}
+              className="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-medium border border-slate-700 transition-all"
+            >
+              عرض الكود البرمجي
+            </button>
           </div>
         </div>
 
