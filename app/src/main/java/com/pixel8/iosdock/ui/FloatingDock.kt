@@ -87,41 +87,37 @@ fun FloatingDockView(
             }
             .padding(8.dp)
     ) {
-        // حاوية تأثير الزجاج الضبابي iOS Frosted Glass
+        // حاوية تأثير الزجاج الفاخر iOS Frosted Glass بدون تشويش على الأيقونات الداخلية
         Box(
             modifier = Modifier
                 .shadow(
-                    elevation = 16.dp,
-                    shape = RoundedCornerShape(32.dp),
-                    spotColor = Color(0x66000000),
-                    ambientColor = Color(0x44000000)
+                    elevation = 18.dp,
+                    shape = RoundedCornerShape(28.dp),
+                    spotColor = Color(0x33000000),
+                    ambientColor = Color(0x22000000)
                 )
-                .clip(RoundedCornerShape(32.dp))
-                // تطبيق تأثير RenderEffect البلوري في نظام أندرويد 12+ (Android 12/13/14/15)
-                .graphicsLayer {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                        val blurPx = 40.dp.toPx()
-                        renderEffect = RenderEffect
-                            .createBlurEffect(blurPx, blurPx, Shader.TileMode.CLAMP)
-                            .asComposeRenderEffect()
-                    }
-                }
-                // لون زجاجي فائق النعومة وخلفية شبه شفافة مثل لوحة iOS
+                .clip(RoundedCornerShape(28.dp))
+                // لون زجاجي فاخر نصف شفاف بنمط شريط dock في نظام iOS
                 .background(
-                    color = Color.White.copy(alpha = 0.35f)
+                    Brush.verticalGradient(
+                        colors = listOf(
+                            Color(0xE6FFFFFF),
+                            Color(0xCCF2F2F7)
+                        )
+                    )
                 )
-                // إطار خارجي شفاف لامع لإبراز حواف الزجاج
+                // إطار خارجي عاكس ولامع يبرز حواف الزجاج
                 .border(
-                    width = 0.8.dp,
+                    width = 1.2.dp,
                     brush = Brush.verticalGradient(
                         colors = listOf(
-                            Color.White.copy(alpha = 0.75f),
-                            Color.White.copy(alpha = 0.20f)
+                            Color.White.copy(alpha = 0.95f),
+                            Color.White.copy(alpha = 0.40f)
                         )
                     ),
-                    shape = RoundedCornerShape(32.dp)
+                    shape = RoundedCornerShape(28.dp)
                 )
-                .padding(horizontal = 14.dp, vertical = 10.dp)
+                .padding(horizontal = 14.dp, vertical = 9.dp)
         ) {
             Row(
                 horizontalArrangement = Arrangement.spacedBy(14.dp),
